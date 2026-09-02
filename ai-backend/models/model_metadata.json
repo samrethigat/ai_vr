@@ -1,0 +1,153 @@
+{
+  "model_name": "LogisticRegressionBaseline",
+  "model_version": "1.0.0",
+  "dataset_name": "Kaggle Flood Risk in India",
+  "total_samples": 12000,
+  "train_samples": 9600,
+  "test_samples": 2400,
+  "metrics": {
+    "accuracy": 0.9975,
+    "precision": 0.9979,
+    "recall": 0.9996,
+    "f1_score": 0.9987,
+    "roc_auc": 0.9996,
+    "cv_f1_mean": 0.9983,
+    "cv_f1_std": 0.0008,
+    "confusion_matrix": [
+      [
+        22,
+        5
+      ],
+      [
+        1,
+        2372
+      ]
+    ]
+  },
+  "all_model_benchmarks": {
+    "RandomForestClassifier": {
+      "accuracy": 0.9962,
+      "precision": 0.9962,
+      "recall": 1.0,
+      "f1_score": 0.9981,
+      "roc_auc": 0.9997,
+      "cv_f1_mean": 0.9979,
+      "cv_f1_std": 0.0004,
+      "confusion_matrix": [
+        [
+          18,
+          9
+        ],
+        [
+          0,
+          2373
+        ]
+      ]
+    },
+    "XGBoostClassifier": {
+      "accuracy": 0.9971,
+      "precision": 0.9975,
+      "recall": 0.9996,
+      "f1_score": 0.9985,
+      "roc_auc": 0.9997,
+      "cv_f1_mean": 0.9981,
+      "cv_f1_std": 0.0005,
+      "confusion_matrix": [
+        [
+          21,
+          6
+        ],
+        [
+          1,
+          2372
+        ]
+      ]
+    },
+    "GradientBoostingClassifier": {
+      "accuracy": 0.9954,
+      "precision": 0.9966,
+      "recall": 0.9987,
+      "f1_score": 0.9977,
+      "roc_auc": 0.9984,
+      "cv_f1_mean": 0.9973,
+      "cv_f1_std": 0.0004,
+      "confusion_matrix": [
+        [
+          19,
+          8
+        ],
+        [
+          3,
+          2370
+        ]
+      ]
+    },
+    "LogisticRegressionBaseline": {
+      "accuracy": 0.9975,
+      "precision": 0.9979,
+      "recall": 0.9996,
+      "f1_score": 0.9987,
+      "roc_auc": 0.9996,
+      "cv_f1_mean": 0.9983,
+      "cv_f1_std": 0.0008,
+      "confusion_matrix": [
+        [
+          22,
+          5
+        ],
+        [
+          1,
+          2372
+        ]
+      ]
+    }
+  },
+  "feature_names": [
+    "Latitude",
+    "Longitude",
+    "Rainfall_mm",
+    "Temperature_C",
+    "Humidity_pct",
+    "River_Discharge_m3_s",
+    "Water_Level_m",
+    "Elevation_m",
+    "Population_Density",
+    "Historical_Floods",
+    "Hydrological_Pressure_Ratio",
+    "Runoff_Index",
+    "Water_Accumulation_Proxy",
+    "Topographic_Vulnerability",
+    "Historical_Risk_Index",
+    "Land_Cover_Agricultural",
+    "Land_Cover_Barren",
+    "Land_Cover_Forest",
+    "Land_Cover_Urban",
+    "Land_Cover_Water_Body",
+    "Land_Cover_Wetland",
+    "Soil_Type_Alluvial",
+    "Soil_Type_Black_Soil",
+    "Soil_Type_Clayey",
+    "Soil_Type_Laterite",
+    "Soil_Type_Red_Soil",
+    "Soil_Type_Sandy_Loam",
+    "Infrastructure_Critical",
+    "Infrastructure_Good",
+    "Infrastructure_Moderate",
+    "Infrastructure_Poor"
+  ],
+  "top_feature_importances": {},
+  "risk_thresholds": {
+    "LOW": [
+      0.0,
+      0.3
+    ],
+    "MEDIUM": [
+      0.31,
+      0.6
+    ],
+    "HIGH": [
+      0.61,
+      1.0
+    ]
+  }
+}
