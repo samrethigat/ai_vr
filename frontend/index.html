@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FloodShield AI & VR | Smart Flood Disaster Response & VR Training Command</title>
+  <meta name="description" content="AI-Powered Smart Flood Disaster Response, A* Safe Route Navigation, VR Simulation Telemetry Scoring, and Real-Time AI Virtual Instructor Command Platform.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Core App Stylesheet -->
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="dark-theme">
+
+  <!-- Top Emergency Broadcast Ticker -->
+  <aside class="emergency-ticker-bar" id="emergencyTickerBar">
+    <div class="ticker-badge">
+      <span class="live-dot pulse"></span>
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span>CRITICAL BROADCAST</span>
+    </div>
+    <div class="ticker-content" id="tickerContent">
+      <span class="ticker-text" id="tickerText">Loading real-time disaster alerts from NDRF command network...</span>
+    </div>
+    <div class="ticker-actions">
+      <button class="btn-ticker-action" id="btnOpenAlertModal" title="Broadcast Emergency Alert">
+        <i class="fa-solid fa-bullhorn"></i> Broadcast Alert
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Navigation Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <div class="brand-logo-glow">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span class="logo-pulse"></span>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">
+            <span class="brand-highlight">FloodShield</span> <span class="brand-sub">AI & VR</span>
+          </div>
+          <div class="brand-tagline">National Disaster Response & VR Training Command Center</div>
+        </div>
+      </div>
+
+      <!-- Live Backend Telemetry & Status Badges -->
+      <div class="system-status-cluster">
+        <div class="status-pill status-healthy" id="systemStatusPill">
+          <span class="indicator-dot"></span>
+          <span id="systemStatusText">OPERATIONAL</span>
+        </div>
+        <div class="status-pill status-model">
+          <i class="fa-solid fa-microchip"></i>
+          <span id="modelStatusText">ML Predictor: Ready</span>
+        </div>
+        <div class="status-pill status-hazards">
+          <i class="fa-solid fa-radiation"></i>
+          <span>Hazards: <strong id="headerHazardCount">4</strong></span>
+        </div>
+        <div class="status-pill status-shelters">
+          <i class="fa-solid fa-house-chimney-medical"></i>
+          <span>Shelters: <strong id="headerShelterCount">5</strong></span>
+        </div>
+        <a href="/docs" target="_blank" class="btn-icon-link" title="Open FastAPI Interactive Swagger Docs">
+          <i class="fa-solid fa-book-bookmark"></i>
+          <span>API Docs</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs Bar -->
+    <nav class="nav-tabs-bar">
+      <div class="tabs-container">
+        <button class="nav-tab active" data-tab="tab-map">
+          <i class="fa-solid fa-map-location-dot"></i>
+          <span>Geospatial Command & Route</span>
+        </button>
+        <button class="nav-tab" data-tab="tab-prediction">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>AI Flood Risk ML Engine</span>
+        </button>
+        <button class="nav-tab" data-tab="tab-vr">
+          <i class="fa-solid fa-vr-cardboard"></i>
+          <span>VR Training Simulation & Telemetry</span>
+        </button>
+        <button class="nav-tab" data-tab="tab-instructor">
+          <i class="fa-solid fa-headset"></i>
+          <span>AI Virtual Instructor & Audio HUD</span>
+        </button>
+        <button class="nav-tab" data-tab="tab-hazards">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>Hazards & Shelters Hub</span>
+        </button>
+        <button class="nav-tab" data-tab="tab-zones">
+          <i class="fa-solid fa-water"></i>
+          <span>Monitored River Basins</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content Viewport -->
+  <main class="app-content">
+
+    <!-- ================================================================= -->
+    <!-- TAB 1: GEOSPATIAL COMMAND & SAFE ROUTE ENGINE -->
+    <!-- ================================================================= -->
+    <section class="tab-pane active" id="tab-map">
+      <div class="command-grid-layout">
+        
+        <!-- Left: Interactive Leaflet Map -->
+        <div class="map-card glass-panel">
+          <div class="card-header-flex">
+            <div class="header-left">
+              <i class="fa-solid fa-compass"></i>
+              <h3>Real-Time Geospatial Disaster Navigation Mesh</h3>
+            </div>
+            <div class="map-controls-quick">
+              <span class="control-label">Focus Basin:</span>
+              <select id="mapZoneSelector" class="compact-select">
+                <option value="all">India Overview</option>
+                <option value="z1" selected>Guwahati (Brahmaputra)</option>
+                <option value="z2">Ernakulam (Periyar)</option>
+                <option value="z3">Patna (Ganges)</option>
+                <option value="z4">Mumbai (Mithi)</option>
+                <option value="z5">Cuttack (Mahanadi)</option>
+              </select>
+              <button class="btn-compact" id="btnResetMap" title="Reset View">
+                <i class="fa-solid fa-crosshairs"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="map-wrapper">
+            <div id="disasterMap"></div>
+            <!-- Map Legend Overlay -->
+            <div class="map-legend glass-panel">
+              <h4>Legend</h4>
+              <div class="legend-item"><span class="legend-color legend-primary-route"></span> Primary Safe Evac Route</div>
+              <div class="legend-item"><span class="legend-color legend-alt-route"></span> Alternative Bypass Route</div>
+              <div class="legend-item"><span class="legend-color legend-flood-zone"></span> Monitored Flood Basin</div>
+              <div class="legend-item"><span class="legend-icon text-danger"><i class="fa-solid fa-bolt"></i></span> Active Hazard Zone</div>
+              <div class="legend-item"><span class="legend-icon text-success"><i class="fa-solid fa-hospital"></i></span> Elevated Shelter</div>
+              <div class="legend-item"><span class="legend-icon text-primary"><i class="fa-solid fa-user-shield"></i></span> User Origin (Drag / Click)</div>
+            </div>
+          </div>
+
+          <div class="map-footer-status">
+            <div class="footer-chip"><i class="fa-solid fa-location-crosshairs"></i> Selected Origin: <span id="currentCoordsDisplay" class="mono">26.1722° N, 91.7458° E</span></div>
+            <div class="footer-chip"><i class="fa-solid fa-shield-heart"></i> Destination: <span id="currentDestDisplay">NDRF Regional Relief Center</span></div>
+            <div class="footer-hint"><i class="fa-solid fa-circle-info"></i> Click anywhere on the map or drag the blue marker to test routes from any location.</div>
+          </div>
+        </div>
+
+        <!-- Right: Safe Route Planning & Location Analysis HUD -->
+        <div class="route-hud-card glass-panel">
+          <div class="card-header-flex">
+            <div class="header-left">
+              <i class="fa-solid fa-route"></i>
+              <h3>Dynamic Safe Route Engine (A* / Dijkstra)</h3>
+            </div>
+          </div>
+
+          <div class="hud-scrollable-content">
+            <!-- Route Settings Form -->
+            <div class="control-form-group">
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="routeAlgorithm"><i class="fa-solid fa-brain"></i> Routing Algorithm</label>
+                  <select id="routeAlgorithm" class="custom-select">
+                    <option value="A_STAR" selected>A* (Heuristic + Dynamic Hazard Avoidance)</option>
+                    <option value="DIJKSTRA">Dijkstra (Shortest Weighted Graph Traversal)</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="destinationShelterSelect"><i class="fa-solid fa-hospital"></i> Target Evac Shelter</label>
+                  <select id="destinationShelterSelect" class="custom-select">
+                    <option value="auto">Auto Nearest Safe Shelter</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-field">
+                  <label for="hazardWeightRange">Hazard Cost Multiplier: <span id="valHazardWeight" class="mono">5.0x</span></label>
+                  <input type="range" id="hazardWeightRange" min="1.0" max="10.0" step="0.5" value="5.0" class="custom-slider">
+                </div>
+                <div class="form-field">
+                  <label for="floodWeightRange">Flood Risk Multiplier: <span id="valFloodWeight" class="mono">4.0x</span></label>
+                  <input type="range" id="floodWeightRange" min="1.0" max="10.0" step="0.5" value="4.0" class="custom-slider">
+                </div>
+              </div>
+
+              <div class="button-cluster-grid">
+                <button class="btn-primary" id="btnCalculateSafeRoute">
+                  <i class="fa-solid fa-person-walking-arrow-right"></i> Compute Hazard-Avoiding Safe Route
+                </button>
+                <button class="btn-secondary" id="btnAnalyzeLiveLocation">
+                  <i class="fa-solid fa-satellite-dish"></i> Full AI Location Analysis
+                </button>
+              </div>
+            </div>
+
+            <!-- Route Calculation Result Banner -->
+            <div class="route-metrics-grid" id="routeMetricsGrid">
+              <div class="metric-box">
+                <div class="metric-label">Route Distance</div>
+                <div class="metric-val mono text-cyan" id="metricDistance">-- km</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">Est. Travel Time</div>
+                <div class="metric-val mono text-amber" id="metricTime">-- min</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">Safety Score</div>
+                <div class="metric-val mono text-success" id="metricSafety">-- %</div>
+              </div>
+              <div class="metric-box">
+                <div class="metric-label">Avg Water Depth</div>
+                <div class="metric-val mono text-info" id="metricWater">-- m</div>
+              </div>
+            </div>
+
+            <!-- Avoided Hazards Badge Strip -->
+            <div class="avoided-hazards-section" id="avoidedHazardsContainer">
+              <span class="section-micro-label"><i class="fa-solid fa-shield-virus"></i> Hazards Successfully Bypassed:</span>
+              <div class="hazard-badge-strip" id="hazardBadgeStrip">
+                <span class="badge-chip"><i class="fa-solid fa-check"></i> Submerged 11kV Transformer Bypassed</span>
+                <span class="badge-chip"><i class="fa-solid fa-check"></i> Deep Culvert Washout Avoided</span>
+              </div>
+            </div>
+
+            <!-- Turn-by-Turn Waypoint Guidance -->
+            <div class="turn-guidance-box">
+              <div class="guidance-header">
+                <h4><i class="fa-solid fa-signs-post"></i> Turn-by-Turn Evacuation Instructions</h4>
+                <span class="badge-evac-status" id="evacStatusBadge">AWAITING ROUTE</span>
+              </div>
+              <ol class="step-instruction-list" id="stepInstructionList">
+                <li class="step-item">Click "Compute Hazard-Avoiding Safe Route" to calculate the dynamic A* evacuation corridor.</li>
+              </ol>
+            </div>
+
+            <!-- One-Click Location Analysis Quick Summary -->
+            <div class="location-summary-card glass-panel" id="locationAnalysisResultCard" style="display: none;">
+              <h4><i class="fa-solid fa-circle-nodes"></i> Geospatial AI Analysis Report</h4>
+              <div class="report-row">
+                <span>Matched River Zone:</span>
+                <strong id="repZoneName" class="text-amber">--</strong>
+              </div>
+              <div class="report-row">
+                <span>Evaluated Flood Probability:</span>
+                <strong id="repFloodProb" class="mono text-danger">--</strong>
+              </div>
+              <div class="report-row">
+                <span>Evacuation Urgency Tier:</span>
+                <span id="repUrgencyBadge" class="tier-badge badge-high">--</span>
+              </div>
+              <div class="report-row">
+                <span>Nearest Safe Shelter:</span>
+                <strong id="repShelterName" class="text-success">--</strong>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 2: AI FLOOD RISK PREDICTOR -->
+    <!-- ================================================================= -->
+    <section class="tab-pane" id="tab-prediction">
+      <div class="prediction-grid-layout">
+        
+        <!-- Left: Input Control Dashboard -->
+        <div class="prediction-inputs-card glass-panel">
+          <div class="card-header-flex">
+            <div class="header-left">
+              <i class="fa-solid fa-sliders"></i>
+              <h3>Hydrological & Terrain ML Feature Inputs</h3>
+            </div>
+            <!-- Quick Preset Buttons -->
+            <div class="preset-buttons">
+              <button class="btn-preset" id="presetHighRisk">
+                <i class="fa-solid fa-cloud-bolt text-danger"></i> High Risk (Deluge)
+              </button>
+              <button class="btn-preset" id="presetMedRisk">
+                <i class="fa-solid fa-cloud-rain text-amber"></i> Medium (Surge)
+              </button>
+              <button class="btn-preset" id="presetLowRisk">
+                <i class="fa-solid fa-sun text-success"></i> Low (Dry Season)
+              </button>
+            </div>
+          </div>
+
+          <form id="floodPredictForm" class="predict-form">
+            <div class="form-grid-3">
+              <div class="form-field">
+                <label for="predRainfall">24h Rainfall Accumulation (mm)</label>
+                <div class="input-with-val">
+                  <input type="number" id="predRainfall" value="285.0" min="0" max="800" step="1" class="custom-input">
+                  <span class="unit-tag">mm</span>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="predRiverDischarge">River Discharge Rate (m³/s)</label>
+                <div class="input-with-val">
+                  <input type="number" id="predRiverDischarge" value="2400.0" min="0" max="10000" step="10" class="custom-input">
+                  <span class="unit-tag">m³/s</span>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="predWaterLevel">River Gauge Water Level (m)</label>
+                <div class="input-with-val">
+                  <input type="number" id="predWaterLevel" value="3.8" min="0" max="15" step="0.1" class="custom-input">
+                  <span class="unit-tag">m</span>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="predElevation">Topographic Elevation (m ASL)</label>
+                <div class="input-with-val">
+                  <input type="number" id="predElevation" value="14.0" min="0" max="2500" step="1" class="custom-input">
+                  <span class="unit-tag">m</span>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="predTemp">Ambient Temperature (°C)</label>
+                <div class="input-with-val">
+                  <input type="number" id="predTemp" value="27.5" min="-10" max="55" step="0.5" class="custom-input">
+                  <span class="unit-tag">°C</span>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="predHumidity">Relative Humidity (%)</label>
+                <div class="input-with-val">
+                  <input type="number" id="predHumidity" value="92.0" min="0" max="100" step="1" class="custom-input">
+                  <span class="unit-tag">%</span>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="predLandCover">Land Cover Classification</label>
+                <select id="predLandCover" class="custom-select">
+                  <option value="Urban" selected>Urban (Impervious Pavements)</option>
+                  <option value="Agricultural">Agricultural (Farms & Paddy)</option>
+                  <option value="Forest">Forest / Natural Canopy</option>
+                  <option value="Wetland">Wetland / Natural Basin</option>
+                  <option value="Water_Body">Water Body Riparian Margin</option>
+                  <option value="Barren">Barren / Degraded Land</option>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label for="predSoilType">Dominant Soil Type</label>
+                <select id="predSoilType" class="custom-select">
+                  <option value="Alluvial" selected>Alluvial (River Basin Loam)</option>
+                  <option value="Clayey">Clayey (Low Infiltration)</option>
+                  <option value="Black_Soil">Black Cotton Soil (Expansive)</option>
+                  <option value="Red_Soil">Red Soil</option>
+                  <option value="Laterite">Laterite</option>
+                  <option value="Sandy_Loam">Sandy Loam (High Infiltration)</option>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label for="predPopulation">Population Density (per km²)</label>
+                <div class="input-with-val">
+                  <input type="number" id="predPopulation" value="2200" min="0" max="50000" step="50" class="custom-input">
+                  <span class="unit-tag">/km²</span>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="predInfrastructure">Infrastructure Quality</label>
+                <select id="predInfrastructure" class="custom-select">
+                  <option value="Poor" selected>Poor (Drainage Choked, Unpaved)</option>
+                  <option value="Moderate">Moderate (Standard Storm Drains)</option>
+                  <option value="Good">Good (Engineered Floodwalls)</option>
+                  <option value="Critical">Critical Vulnerability (Low Outfalls)</option>
+                </select>
+              </div>
+
+              <div class="form-field">
+                <label for="predHistoricalFloods">Historical 5-Yr Flood Count</label>
+                <input type="number" id="predHistoricalFloods" value="5" min="0" max="25" step="1" class="custom-input">
+              </div>
+
+              <div class="form-field">
+                <label for="predCoordinates">Location Coordinates</label>
+                <div class="dual-inputs">
+                  <input type="number" id="predLat" value="26.1722" step="0.0001" placeholder="Lat" class="custom-input mono">
+                  <input type="number" id="predLng" value="91.7458" step="0.0001" placeholder="Lng" class="custom-input mono">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions-bar">
+              <button type="button" class="btn-primary-glow" id="btnRunPrediction">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Run Machine Learning Inference
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right: AI Inference Results & Feature Importance -->
+        <div class="prediction-results-card glass-panel">
+          <div class="card-header-flex">
+            <div class="header-left">
+              <i class="fa-solid fa-gauge-high"></i>
+              <h3>AI Flood Risk Stratification & SHAP Factors</h3>
+            </div>
+            <div class="model-badge" id="modelMetadataBadge">Model: Trained XGBoost / Forest</div>
+          </div>
+
+          <div class="results-layout">
+            <!-- Animated Gauge & Risk Tier -->
+            <div class="gauge-tier-container">
+              <div class="gauge-wrapper">
+                <svg class="radial-gauge" viewBox="0 0 200 120">
+                  <path class="gauge-track" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke-width="16"></path>
+                  <path class="gauge-fill" id="gaugeProgressFill" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke-width="16" stroke-dasharray="251.2" stroke-dashoffset="251.2"></path>
+                </svg>
+                <div class="gauge-center-content">
+                  <div class="gauge-number mono" id="gaugePercentVal">0.0%</div>
+                  <div class="gauge-caption">Flood Probability</div>
+                </div>
+              </div>
+
+              <div class="risk-tier-box">
+                <span class="risk-label">Assessed Risk Tier</span>
+                <div class="risk-badge-large" id="riskLevelBadge">HIGH</div>
+                <div class="model-confidence-sub">Confidence: <span class="mono text-cyan">98.4%</span> | Latency: <span class="mono text-cyan">8ms</span></div>
+              </div>
+            </div>
+
+            <!-- Top Contributing Risk Factors -->
+            <div class="factors-section">
+              <h4><i class="fa-solid fa-chart-column"></i> Top Contributing Factors</h4>
+              <div class="factors-list" id="factorsList">
+                <div class="factor-bar-item">
+                  <div class="factor-info">
+                    <span>Extreme Monsoonal Rainfall (285mm)</span>
+                    <strong class="mono text-danger">+38.5%</strong>
+                  </div>
+                  <div class="progress-track"><div class="progress-fill fill-danger" style="width: 85%;"></div></div>
+                </div>
+                <div class="factor-bar-item">
+                  <div class="factor-info">
+                    <span>High River Discharge (2400 m³/s)</span>
+                    <strong class="mono text-danger">+29.2%</strong>
+                  </div>
+                  <div class="progress-track"><div class="progress-fill fill-danger" style="width: 68%;"></div></div>
+                </div>
+                <div class="factor-bar-item">
+                  <div class="factor-info">
+                    <span>Low Topographic Elevation (14m)</span>
+                    <strong class="mono text-amber">+18.4%</strong>
+                  </div>
+                  <div class="progress-track"><div class="progress-fill fill-warning" style="width: 48%;"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Directive -->
+            <div class="action-recommendation-box" id="recommendationBox">
+              <div class="rec-header">
+                <i class="fa-solid fa-bullhorn text-danger"></i>
+                <h5>Official NDRF Mitigation Directive</h5>
+              </div>
+              <p id="recommendationText">CRITICAL FLOOD RISK: Immediate evacuation to elevated shelters advised. Avoid low-lying corridors.</p>
+              <button class="btn-micro" id="btnPublishAlertFromPrediction">
+                <i class="fa-solid fa-broadcast-tower"></i> Broadcast to Emergency Network
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 3: VR DISASTER TRAINING SIMULATION & 8-VECTOR TELEMETRY -->
+    <!-- ================================================================= -->
+    <section class="tab-pane" id="tab-vr">
+      <div class="vr-grid-layout">
+        
+        <!-- Left: VR WebXR / Simulation Sandbox Viewport -->
+        <div class="vr-canvas-card glass-panel">
+          <div class="card-header-flex">
+            <div class="header-left">
+              <i class="fa-solid fa-gamepad"></i>
+              <h3>VR Disaster Simulation Viewport (Interactive Sandbox)</h3>
+            </div>
+            <div class="scenario-selector-group">
+              <label for="vrScenarioSelect">Scenario:</label>
+              <select id="vrScenarioSelect" class="compact-select">
+                <option value="SCEN_URBAN_DELUGE_01" selected>Urban Deluge & Substation Isolation</option>
+                <option value="SCEN_COASTAL_SURGE_02">Coastal Surge & Night Convoy</option>
+                <option value="SCEN_EXTREME_MULTI_HAZARD">Dam Breach & Extreme Deluge</option>
+                <option value="SCEN_HAZARD_AWARENESS_REPLAY">Hazard Awareness Remedial Drill</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Canvas Simulation Stage -->
+          <div class="vr-stage-wrapper">
+            <canvas id="vrSimulationCanvas" width="760" height="420"></canvas>
+            
+            <!-- In-Canvas Tactical HUD Overlay -->
+            <div class="vr-hud-overlay">
+              <div class="vr-hud-metric">
+                <span class="hud-label">WATER LEVEL</span>
+                <span class="hud-val text-cyan mono" id="vrHudWater">0.45 m</span>
+              </div>
+              <div class="vr-hud-metric">
+                <span class="hud-label">HAZARD PROXIMITY</span>
+                <span class="hud-val text-amber mono" id="vrHudHazardDist">14.2 m</span>
+              </div>
+              <div class="vr-hud-metric">
+                <span class="hud-label">VICTIMS SECURED</span>
+                <span class="hud-val text-success mono" id="vrHudVictims">0 / 4</span>
+              </div>
+              <div class="vr-hud-metric">
+                <span class="hud-label">TIMER</span>
+                <span class="hud-val text-info mono" id="vrHudTimer">00:45</span>
+              </div>
+            </div>
+
+            <!-- In-Canvas Virtual Instructor Urgent Alert Banner -->
+            <div class="vr-urgent-callout" id="vrUrgentCallout" style="display: none;">
+              <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+              <div class="callout-msg">
+                <strong id="vrCalloutTitle">ELECTRICAL SHOCK HAZARD</strong>
+                <span id="vrCalloutBody">Live 11kV line submerged within 8 meters. Equip Insulated Probe or halt!</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Trainee Tool Belt & Controls -->
+          <div class="vr-control-toolbar">
+            <div class="tool-selector-cluster">
+              <span class="toolbar-label">Equipped Tool:</span>
+              <button class="btn-tool active" data-tool="Life Jacket"><i class="fa-solid fa-life-ring"></i> Life Jacket</button>
+              <button class="btn-tool" data-tool="Insulated Probe"><i class="fa-solid fa-wand-magic"></i> Insulated Probe</button>
+              <button class="btn-tool" data-tool="Medical Triage Kit"><i class="fa-solid fa-briefcase-medical"></i> Triage Kit</button>
+              <button class="btn-tool" data-tool="Rescue Boat"><i class="fa-solid fa-sailboat"></i> Rescue Boat</button>
+              <button class="btn-tool" data-tool="Tow Winch"><i class="fa-solid fa-truck-pickup"></i> Tow Winch</button>
+            </div>
+
+            <div class="sim-actions-cluster">
+              <button class="btn-secondary" id="btnSimReset"><i class="fa-solid fa-rotate-left"></i> Reset Drill</button>
+              <button class="btn-primary" id="btnSimRunAuto"><i class="fa-solid fa-play"></i> Auto Run Simulation</button>
+              <button class="btn-primary-glow" id="btnEvaluateTelemetry"><i class="fa-solid fa-square-poll-vertical"></i> Evaluate Telemetry</button>
+            </div>
+          </div>
+          
+          <div class="sim-keyboard-hint">
+            <i class="fa-regular fa-keyboard"></i> Control avatar using <strong>Arrow Keys / WASD</strong> on the canvas. Walk to stranded victims to triage & rescue them. Avoid live transformers!
+          </div>
+        </div>
+
+        <!-- Right: 8-Vector Competency Scoring & Performance Analytics -->
+        <div class="vr-scoring-card glass-panel">
+          <div class="card-header-flex">
+            <div class="header-left">
+              <i class="fa-solid fa-award"></i>
+              <h3>8-Vector Competency Evaluation & Telemetry Analysis</h3>
+            </div>
+            <div class="trainee-badge" id="traineeBadge">Trainee: Rahul NDRF-09</div>
+          </div>
+
+          <div class="scoring-content-scroll">
+            <!-- Overall Score & Performance Tier -->
+            <div class="overall-tier-banner">
+              <div class="overall-score-circle">
+                <span class="score-large mono" id="overallScoreVal">86.2</span>
+                <span class="score-den">/ 100</span>
+              </div>
+              <div class="tier-details">
+                <span class="tier-sub-title">Performance Qualification</span>
+                <div class="tier-name-badge" id="tierNameBadge">ADVANCED RESCUE SPECIALIST</div>
+                <div class="score-meta-tags">
+                  <span class="meta-tag"><i class="fa-solid fa-clock"></i> 240s Elapsed</span>
+                  <span class="meta-tag"><i class="fa-solid fa-user-check"></i> 4/4 Rescued</span>
+                  <span class="meta-tag text-success"><i class="fa-solid fa-shield"></i> 0 Incurred Hazards</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chart.js 8-Vector Spider / Radar Chart -->
+            <div class="radar-chart-container">
+              <canvas id="competencyRadarChart"></canvas>
+            </div>
+
+            <!-- Strengths & Weaknesses Badges -->
+            <div class="swot-grid">
+              <div class="swot-column">
+                <h5><i class="fa-solid fa-thumbs-up text-success"></i> Key Strengths</h5>
+                <ul class="swot-list" id="strengthsList">
+                  <li><i class="fa-solid fa-check text-success"></i> Flawless 100% victim extraction rate</li>
+                  <li><i class="fa-solid fa-check text-success"></i> Rapid insulated probe deployment</li>
+                  <li><i class="fa-solid fa-check text-success"></i> Optimal hazard-free corridor chosen</li>
+                </ul>
+              </div>
+              <div class="swot-column">
+                <h5><i class="fa-solid fa-triangle-exclamation text-amber"></i> Improvement Focus</h5>
+                <ul class="swot-list" id="weaknessesList">
+                  <li><i class="fa-solid fa-exclamation text-amber"></i> Radio situation report delayed by 40s</li>
+                  <li><i class="fa-solid fa-exclamation text-amber"></i> Hesitation near flooded culvert marker</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Unsafe Decision Logs -->
+            <div class="unsafe-logs-container">
+              <h5><i class="fa-solid fa-bug text-danger"></i> Unsafe Telemetry Logs & Proximity Events</h5>
+              <div class="log-table-wrapper">
+                <table class="data-table" id="unsafeLogTable">
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>Zone</th>
+                      <th>Event Entity</th>
+                      <th>Proximity</th>
+                      <th>Severity</th>
+                    </tr>
+                  </thead>
+                  <tbody id="unsafeLogTbody">
+                    <tr>
+                      <td class="mono">45.2s</td>
+                      <td>Zone_A_Urban</td>
+                      <td>Submerged 11kV Transformer</td>
+                      <td class="mono text-amber">8.5 m</td>
+                      <td><span class="badge-tag tag-warning">STANDOFF_ALERT</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Adaptive Learning Curriculum Recommendation -->
+            <div class="adaptive-curriculum-card glass-panel" id="adaptiveCurriculumCard">
+              <div class="curr-header">
+                <i class="fa-solid fa-graduation-cap text-cyan"></i>
+                <h4>Adaptive Training Pathway Recommendation</h4>
+              </div>
+              <div class="curr-body">
+                <div class="curr-title" id="currScenarioTitle">Brahmaputra Dam Spillway Breach & Extreme Urban Deluge</div>
+                <div class="curr-diff">Difficulty: <span class="mono text-danger" id="currDifficulty">EXTREME</span></div>
+                <p id="currDescription">Trainee demonstrated high safety awareness and zero violations. Escalating to Catastrophic Multi-Hazard Drill with live arcing and velocity &gt;3.8 m/s.</p>
+                <div class="curr-focus" id="currFocusObjectives">
+                  <strong>Focus Objectives:</strong> High-speed extraction under extreme river current.
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 4: AI VIRTUAL INSTRUCTOR & TACTICAL AUDIO HUD -->
+    <!-- ================================================================= -->
+    <section class="tab-pane" id="tab-instructor">
+      <div class="instructor-grid-layout">
+        
+        <!-- Left: Audio HUD & Live Prompt Stream -->
+        <div class="instructor-stream-card glass-panel">
+          <div class="card-header-flex">
+            <div class="header-left">
+              <i class="fa-solid fa-headset"></i>
+              <h3>Real-Time AI Virtual Instructor Command Feed</h3>
+            </div>
+            <div class="speech-toggle-group">
+              <label class="switch-toggle" title="Enable Voice Speech Synthesis for Instructor">
+                <input type="checkbox" id="chkSpeechSynthesis" checked>
+                <span class="slider round"></span>
+              </label>
+              <span>Voice Guidance (Audio HUD)</span>
+            </div>
+          </div>
+
+          <!-- Active High-Priority Tactical Prompt Spotlight -->
+          <div class="spotlight-prompt-box glass-panel" id="spotlightPromptBox">
+            <div class="spotlight-header">
+              <span class="spotlight-priority-tag tag-critical" id="spotlightPriority">CRITICAL_WARNING</span>
+              <span class="sop-code mono" id="spotlightSop">SOP_ELEC_01</span>
+            </div>
+            <h2 class="spotlight-headline" id="spotlightHeadline">ELECTRICAL SHOCK HAZARD DETECTED</h2>
+            <p class="spotlight-message" id="spotlightMessage">Do not enter the electrical hazard area. Live 11kV line submerged within 8 meters.</p>
+            <div class="spotlight-action-box">
+              <i class="fa-solid fa-person-walking-dashed-line-arrow-right text-warning"></i>
+              <span><strong>Mandated Action:</strong> <span id="spotlightAction">Halt forward movement immediately. Backtrack 10 meters and select bypass route.</span></span>
+            </div>
+          </div>
+
+          <!-- Chronological Guidance Feed History -->
+          <div class="prompts-history-section">
+            <h4><i class="fa-solid fa-clock-rotate-left"></i> Tactical Guidance Log</h4>
+            <div class="prompt-stream-list" id="promptStreamList">
+              <!-- Dynamically populated prompts -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Real-time Telemetry Simulator for Instructor -->
+        <div class="instructor-tester-card glass-panel">
+          <div class="card-header-flex">
+            <div class="header-left">
+              <i class="fa-solid fa-sliders"></i>
+              <h3>Live Sensor Simulator & Guidance Inspector</h3>
+            </div>
+          </div>
+
+          <div class="tester-form">
+            <p class="form-desc">Adjust live sensor inputs below to observe the deterministic AI Virtual Instructor's instant evaluation according to NDRF Standard Operating Procedures (SOP).</p>
+
+            <div class="form-field">
+              <label for="instHazardType">Nearest Environmental Hazard</label>
+              <select id="instHazardType" class="custom-select">
+                <option value="ELECTRICAL" selected>ELECTRICAL (Submerged 11kV Transformer)</option>
+                <option value="DEEP_WATER">DEEP_WATER (Rapid Current Depth &gt;1.5m)</option>
+                <option value="BLOCKED_ROAD">BLOCKED_ROAD (Debris / Collapsed Bridge)</option>
+                <option value="FALLEN_TREE">FALLEN_TREE (Obstruction on Evac Route)</option>
+                <option value="None">None (Clear Corridor)</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="instHazardDist">Distance to Nearest Hazard: <span id="valInstHazardDist" class="mono">6.5 m</span></label>
+              <input type="range" id="instHazardDist" min="1.0" max="50.0" step="0.5" value="6.5" class="custom-slider">
+            </div>
+
+            <div class="form-field">
+              <label for="instWaterLevel">Current Sector Water Level: <span id="valInstWaterLevel" class="mono">0.85 m</span></label>
+              <input type="range" id="instWaterLevel" min="0.0" max="3.0" step="0.05" value="0.85" class="custom-slider">
+            </div>
+
+            <div class="form-field">
+              <label for="instWaterRiseRate">Water Rise Rate (cm/min): <span id="valInstWaterRate" class="mono">6.0 cm/min</span></label>
+              <input type="range" id="instWaterRiseRate" min="0.0" max="25.0" step="0.5" value="6.0" class="custom-slider">
+            </div>
+
+            <div class="form-field">
+              <label for="instTool">Equipped Rescue Tool</label>
+              <select id="instTool" class="custom-select">
+                <option value="Life Jacket" selected>Life Jacket</option>
+                <option value="Insulated Probe">Insulated Probe</option>
+                <option value="Medical Triage Kit">Medical Triage Kit</option>
+                <option value="Rescue Boat">Rescue Boat</option>
+                <option value="None">None (Unarmed / Bare Hands)</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="instVictimPriority">Nearby Victim Priority</label>
+              <select id="instVictimPriority" class="custom-select">
+                <option value="None">No Victims in Immediate Sector</option>
+                <option value="CRITICAL">CRITICAL (Hypothermia / Entrapped Child)</option>
+                <option value="HIGH">HIGH (Stranded Elder on Roof)</option>
+                <option value="MODERATE">MODERATE (Mobile Citizen on High Curb)</option>
+              </select>
+            </div>
+
+            <button class="btn-primary-glow" id="btnTestInstructor">
+              <i class="fa-solid fa-bolt"></i> Evaluate Live Guidance Now
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 5: HAZARDS & SHELTERS MANAGEMENT HUB -->
+    <!-- ================================================================= -->
+    <section class="tab-pane" id="tab-hazards">
+      <div class="hazards-management-layout">
+        
+        <!-- Active Environmental Hazards Table Card -->
+        <div class="hazards-table-card glass-panel">
+          <div class="card-header-flex">
+            <div class="header-left">
+              <i class="fa-solid fa-radiation text-danger"></i>
+              <h3>Active Dynamic Environmental Hazards (Spatial Graph Obstacles)</h3>
+            </div>
+            <button class="btn-primary" id="btnOpenHazardModal">
+              <i class="fa-solid fa-plus"></i> Report New Hazard
+            </button>
+          </div>
+
+          <div class="table-scroll-wrapper">
+            <table class="data-table" id="hazardsTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th>Coordinates</th>
+                  <th>Danger Radius</th>
+                  <th>Severity</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="hazardsTbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Relief Shelters Grid -->
+        <div class="shelters-grid-card glass-panel">
+          <div class="card-header-flex">
+            <div class="header-left">
+              <i class="fa-solid fa-house-chimney-medical text-success"></i>
+              <h3>Designated Elevated Evacuation Shelters</h3>
+            </div>
+          </div>
+
+          <div class="shelters-card-grid" id="sheltersCardGrid">
+            <!-- Dynamically populated shelter cards -->
+          </div>
+        </div>
+
+        <!-- Emergency Broadcast Alerts Management -->
+        <div class="alerts-management-card glass-panel">
+          <div class="card-header-flex">
+            <div class="header-left">
+              <i class="fa-solid fa-bullhorn text-amber"></i>
+              <h3>Disaster Broadcast Network Bulletin</h3>
+            </div>
+            <button class="btn-secondary" id="btnOpenAlertModal2">
+              <i class="fa-solid fa-plus"></i> Post Broadcast
+            </button>
+          </div>
+
+          <div class="alerts-list-container" id="broadcastAlertsList">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- TAB 6: MONITORED RIVER BASINS -->
+    <!-- ================================================================= -->
+    <section class="tab-pane" id="tab-zones">
+      <div class="zones-grid-layout">
+        <div class="zones-header-summary glass-panel">
+          <div class="header-left">
+            <i class="fa-solid fa-water text-cyan"></i>
+            <div>
+              <h3>Monitored Indian Flood River Basins & Hydrological Stations</h3>
+              <p>Continuous sensor telemetry integration covering Brahmaputra, Periyar, Ganges, Mithi, and Mahanadi river catchments.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="zones-card-grid" id="zonesCardGrid">
+          <!-- Dynamically populated zone cards -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================================================================= -->
+  <!-- MODAL: REPORT NEW HAZARD -->
+  <!-- ================================================================= -->
+  <div class="modal-backdrop" id="hazardModal" style="display: none;">
+    <div class="modal-dialog glass-panel">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-triangle-exclamation text-danger"></i> Report Dynamic Environmental Hazard</h3>
+        <button class="btn-close-modal" id="btnCloseHazardModal">&times;</button>
+      </div>
+      <form id="newHazardForm" class="modal-body">
+        <div class="form-field">
+          <label for="newHazardType">Hazard Category</label>
+          <select id="newHazardType" class="custom-select" required>
+            <option value="ELECTRICAL">ELECTRICAL (Live Lines / Submerged Transformer)</option>
+            <option value="BLOCKED_ROAD">BLOCKED_ROAD (Debris / Road Collapse)</option>
+            <option value="DEEP_WATER">DEEP_WATER (Rapid High Flow Trench)</option>
+            <option value="FALLEN_TREE">FALLEN_TREE (Uprooted Obstruction)</option>
+            <option value="BRIDGE_FAILURE">BRIDGE_FAILURE (Structural Breach)</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="newHazardLat">Latitude</label>
+            <input type="number" id="newHazardLat" step="0.0001" value="26.1600" class="custom-input mono" required>
+          </div>
+          <div class="form-field">
+            <label for="newHazardLng">Longitude</label>
+            <input type="number" id="newHazardLng" step="0.0001" value="91.7300" class="custom-input mono" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="newHazardRadius">Danger Radius (Meters)</label>
+            <input type="number" id="newHazardRadius" value="80.0" min="10" max="500" step="5" class="custom-input" required>
+          </div>
+          <div class="form-field">
+            <label for="newHazardSeverity">Severity Multiplier (1-5)</label>
+            <input type="number" id="newHazardSeverity" value="4.0" min="1.0" max="5.0" step="0.5" class="custom-input" required>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="newHazardDesc">Field Observation & Description</label>
+          <input type="text" id="newHazardDesc" placeholder="e.g. Flash landslide blocking North Arterial Road" class="custom-input" required>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="btnCancelHazardModal">Cancel</button>
+          <button type="submit" class="btn-primary-glow">Submit & Update Navigation Mesh</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- MODAL: BROADCAST EMERGENCY ALERT -->
+  <!-- ================================================================= -->
+  <div class="modal-backdrop" id="alertModal" style="display: none;">
+    <div class="modal-dialog glass-panel">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-bullhorn text-amber"></i> Broadcast Disaster Emergency Alert</h3>
+        <button class="btn-close-modal" id="btnCloseAlertModal">&times;</button>
+      </div>
+      <form id="newAlertForm" class="modal-body">
+        <div class="form-field">
+          <label for="newAlertTitle">Alert Title / Headline</label>
+          <input type="text" id="newAlertTitle" placeholder="e.g. Severe Flash Flood Warning - Sector 4" class="custom-input" required>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="newAlertSeverity">Alert Severity</label>
+            <select id="newAlertSeverity" class="custom-select">
+              <option value="CRITICAL_EMERGENCY">CRITICAL_EMERGENCY (Immediate Danger)</option>
+              <option value="WARNING" selected>WARNING (Elevated Risk)</option>
+              <option value="ADVISORY">ADVISORY (Standby Monitoring)</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="newAlertRegion">Affected Region Name</label>
+            <input type="text" id="newAlertRegion" value="Guwahati Brahmaputra Lowlands (Zone A)" class="custom-input" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="newAlertLat">Center Latitude</label>
+            <input type="number" id="newAlertLat" step="0.0001" value="26.1722" class="custom-input mono" required>
+          </div>
+          <div class="form-field">
+            <label for="newAlertLng">Center Longitude</label>
+            <input type="number" id="newAlertLng" step="0.0001" value="91.7458" class="custom-input mono" required>
+          </div>
+          <div class="form-field">
+            <label for="newAlertRadius">Radius (km)</label>
+            <input type="number" id="newAlertRadius" value="15.0" class="custom-input mono" required>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="newAlertMessage">Broadcast Directive Message</label>
+          <textarea id="newAlertMessage" rows="3" class="custom-textarea" placeholder="Detailed evacuation instructions for citizens and rescue teams..." required></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="btnCancelAlertModal">Cancel</button>
+          <button type="submit" class="btn-primary-glow">Broadcast Immediately</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Core App Logic -->
+  <script src="/app.js"></script>
+</body>
+</html>

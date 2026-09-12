@@ -8,7 +8,7 @@ import sys
 import json
 import logging
 from typing import List, Dict, Any, Optional
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Query, status
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Query, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse
@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 
 # Ensure ai-backend directory is in Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
 
 from prediction.predictor import predictor, FloodPredictionInput, FloodPredictionResult
 from routing.safe_route_engine import route_engine, SafeRouteRequest, SafeRouteResponse, haversine_km
@@ -146,7 +147,11 @@ class AlertInput(BaseModel):
 # ============================================================================
 
 @app.get("/", summary="System Root Info")
-async def root():
+async def root(request: Request):
+    accept = request.headers.get("accept", "")
+    index_file = os.path.join(FRONTEND_DIR, "index.html")
+    if "text/html" in accept and os.path.exists(index_file):
+        return FileResponse(index_file)
     return {
         "system": "AI-Powered Smart Flood Disaster Response & VR Training System",
         "status": "OPERATIONAL",
@@ -155,7 +160,8 @@ async def root():
         "active_hazards": len(route_engine.hazards),
         "shelters_online": len(route_engine.shelters),
         "monitored_zones": len(geo_service.flood_zones),
-        "documentation": "/docs"
+        "documentation": "/docs",
+        "web_dashboard": "/app"
     }
 
 
@@ -425,13 +431,26 @@ async def websocket_vr_telemetry(websocket: WebSocket):
 # 10. FRONTEND STATIC ASSETS MOUNT
 # ============================================================================
 
-FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
 if os.path.exists(FRONTEND_DIR):
     app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
-    @app.get("/app", summary="Serve Web Application Dashboard")
-    async def serve_app():
-        index_file = os.path.join(FRONTEND_DIR, "index.html")
-        if os.path.exists(index_file):
-            return FileResponse(index_file)
-        return JSONResponse({"error": "index.html not found in frontend directory"}, status_code=404)
+@app.get("/app", summary="Serve Web Application Dashboard")
+async def serve_app():
+    index_file = os.path.join(FRONTEND_DIR, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return JSONResponse({"error": "index.html not found in frontend directory"}, status_code=404)
+
+@app.get("/style.css", include_in_schema=False)
+async def serve_css():
+    css_file = os.path.join(FRONTEND_DIR, "style.css")
+    if os.path.exists(css_file):
+        return FileResponse(css_file, media_type="text/css")
+    raise HTTPException(status_code=404, detail="style.css not found")
+
+@app.get("/app.js", include_in_schema=False)
+async def serve_js():
+    js_file = os.path.join(FRONTEND_DIR, "app.js")
+    if os.path.exists(js_file):
+        return FileResponse(js_file, media_type="application/javascript")
+    raise HTTPException(status_code=404, detail="app.js not found")
