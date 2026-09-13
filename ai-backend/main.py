@@ -24,6 +24,9 @@ from scoring.telemetry_analyzer import telemetry_analyzer, VrSessionEvaluationRe
 from services.virtual_instructor import virtual_instructor, InstructorGuidanceRequest, InstructorPrompt
 from services.adaptive_learning import generate_adaptive_curriculum
 from services.geo_service import geo_service, LocationAnalysisRequest, LocationAnalysisResponse
+from services.performance_ai import performance_ai
+from services.skill_gap_ai import skill_gap_ai
+from services.trainee_history import save_session, get_history
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("FloodVR-Backend")
@@ -265,6 +268,43 @@ async def evaluate_vr_telemetry(session: VrSessionEvaluationRequest):
 # 6. DETERMINISTIC AI VIRTUAL INSTRUCTOR
 # ============================================================================
 
+class AIPerformanceRequest(BaseModel):
+    session_id: str
+    trainee_id: str
+    scenario_id: str = "SCEN_URBAN_DELUGE_01"
+    scenario_title: str = "Flood VR Training"
+    difficulty: str = "MEDIUM"
+    safety_awareness: float
+    rescue_effectiveness: float
+    decision_quality: float
+    route_efficiency: float
+    response_time: float
+    communication: float
+    tool_usage: float
+    adaptability: float
+    overall_score: float
+    reaction_time_sec: float = 0.0
+    decision_time_sec: float = 0.0
+    mistakes: int = 0
+    hazard_violations: int = 0
+    victims_total: int = 0
+    victims_rescued: int = 0
+    evacuation_time_sec: float = 0.0
+    distance_travelled_m: float = 0.0
+    route_deviation_pct: float = 0.0
+
+@app.post("/api/v1/vr/ai-performance", summary="ML Trainee Performance Classification & Personalized Recommendation")
+async def ai_performance_analysis(request: AIPerformanceRequest):
+    if not performance_ai.is_ready:
+        raise HTTPException(status_code=503, detail="Performance AI model is not trained. Run training/train_performance_model.py first.")
+    try:
+        data = request.model_dump()
+        data["difficulty_encoded"] = {"EASY": 0, "MEDIUM": 1, "HARD": 2, "EXTREME": 3}.get(request.difficulty.upper(), 1)
+        return performance_ai.analyze(data)
+    except Exception as e:
+        logger.exception("AI performance analysis failed")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/api/v1/vr/virtual-instructor/guidance", response_model=List[InstructorPrompt], summary="Get Real-Time Virtual Instructor Guidance & Audio Cues")
 async def get_instructor_guidance(request: InstructorGuidanceRequest):
     """
@@ -454,3 +494,62 @@ async def serve_js():
     if os.path.exists(js_file):
         return FileResponse(js_file, media_type="application/javascript")
     raise HTTPException(status_code=404, detail="app.js not found")
+@app.post("/api/v1/vr/skill-gap")
+def analyze_skill_gap(request: AIPerformanceRequest):
+    """
+    Analyze trainee competencies and identify the most important
+    skill gap for personalized training.
+    """
+
+    data = request.model_dump()
+
+    result = skill_gap_ai.analyze(data)
+
+    return {
+        "trainee_id": request.trainee_id,
+        "session_id": request.session_id,
+        "scenario_id": request.scenario_id,
+        "skill_gap_analysis": result
+    }
+@app.get("/api/v1/vr/history/{trainee_id}")
+def get_trainee_history(trainee_id: str):
+    history = get_history(trainee_id)
+
+    return {
+        "trainee_id": trainee_id,
+        "sessions_completed": len(history),
+        "history": history
+    }
+@app.post("/api/v1/vr/history/save")
+def save_trainee_session(request: AIPerformanceRequest):
+
+    # Analyze the trainee's performance
+    performance_result = performance_ai.analyze(request.model_dump())
+
+    # Get predicted class
+    performance_class = performance_result["predicted_performance"]
+
+    # Get weakest competency
+    weakest_competency = performance_result["recommendation"]["focus_competency"]
+
+    # Save the session
+    save_session(
+        session_id=request.session_id,
+        trainee_id=request.trainee_id,
+        scenario_id=request.scenario_id,
+        overall_score=request.overall_score,
+        decision_quality=request.decision_quality,
+        safety_awareness=request.safety_awareness,
+        rescue_effectiveness=request.rescue_effectiveness,
+        adaptability=request.adaptability,
+        performance_class=performance_class,
+        weakest_competency=weakest_competency
+    )
+
+    return {
+        "message": "Training session saved successfully",
+        "trainee_id": request.trainee_id,
+        "session_id": request.session_id,
+        "performance_class": performance_class,
+        "weakest_competency": weakest_competency
+    }
